@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import font
 import pandas as pd
 import os
 
@@ -41,47 +42,60 @@ def calculate_credit(percent):
 
     if not os.path.exists('C:/Credit calculator'):  # создаём папку, если её ещё не существует
         os.makedirs('C:/Credit calculator')
-    df.to_excel('C:/Credit calculator/schedule.xlsx', sheet_name='List 1')  # запись файла с графиком платежей в excel
+    with pd.ExcelWriter('C:/Credit calculator/schedule.xlsx',
+                        engine='xlsxwriter') as wb:  # создание и форматирование файла в excel
+        df.to_excel(wb, sheet_name='List 1', index=False)
+        sheet = wb.sheets['List 1']
+        sheet.set_column(2, 4, 10)  # установить ширину столбцов C, D, E в 10
+        sheet.set_column(5, 12)  # установить ширину столбца F в 12
+
+        # Ниже выдаёт ошибку "XlsxWriter ha no attr 'add_format'". Искать решение дальше
+        # format_cell = wb.book.add_format({'num_format': '# ##0.00'})  # задать формат ячеек как числовой
+        # sheet.set_column('D:F', format_cell) # задать формат столбцов D, E, F как числовой
+
     os.startfile('C:/Credit calculator/schedule.xlsx')  # открытие файла с платежами в excel
 
 
+# Создание окна программы
 window = Tk()
 window.title('Кредитный калькулятор')
 window.geometry('400x300')
 
+font1 = font.Font(family='Cricket', size=14, weight='normal')  # описание шрифта для надписей в окне
+
 frame = Frame(window, padx=10, pady=10)
 frame.pack(expand=True)
 
-object_price_lb = Label(frame, text='Стоимость объекта')
-object_price_lb.grid(row=2, column=1)
+object_price_lb = Label(frame, text='Стоимость объекта', font=font1)
+object_price_lb.grid(row=2, column=1, sticky=W)
 object_price_tf = Entry(frame, width=10)
-object_price_tf.grid(row=2, column=4)
-rub_lb1 = Label(frame, text='руб.')
-rub_lb1.grid(row=2, column=5)
+object_price_tf.grid(row=2, column=4, sticky=W)
+rub_lb1 = Label(frame, text='руб.', font=font1)
+rub_lb1.grid(row=2, column=5, sticky=W)
 
-init_payment_lb = Label(frame, text='Первоначальный взнос')
-init_payment_lb.grid(row=3, column=1)
+init_payment_lb = Label(frame, text='Первоначальный взнос', font=font1)
+init_payment_lb.grid(row=3, column=1, sticky=W)
 init_payment_tf = Entry(frame, width=10)
-init_payment_tf.grid(row=3, column=4)
-rub_lb2 = Label(frame, text='руб.')
-rub_lb2.grid(row=3, column=5)
+init_payment_tf.grid(row=3, column=4, sticky=W)
+rub_lb2 = Label(frame, text='руб.', font=font1)
+rub_lb2.grid(row=3, column=5, sticky=W)
 
-term_lb = Label(frame, text='Срок')
-term_lb.grid(row=4, column=1)
+term_lb = Label(frame, text='Срок', font=font1)
+term_lb.grid(row=4, column=1, sticky=W)
 term_tf = Entry(frame, width=4)
-term_tf.grid(row=4, column=4)
-term_lb2 = Label(frame, text='лет')
-term_lb2.grid(row=4, column=5)
+term_tf.grid(row=4, column=4, sticky=W)
+term_lb2 = Label(frame, text='лет', font=font1)
+term_lb2.grid(row=4, column=5, sticky=W)
 
-percent_lb = Label(frame, text='Ставка')
-percent_lb.grid(row=5, column=1)
+percent_lb = Label(frame, text='Ставка', font=font1)
+percent_lb.grid(row=5, column=1, sticky=W)
 percent_tf = Entry(frame, width=4)
-percent_tf.grid(row=5, column=4)
-percent_lb2 = Label(frame, text='%')
-percent_lb2.grid(row=5, column=5)
+percent_tf.grid(row=5, column=4, sticky=W)
+percent_lb2 = Label(frame, text='%', font=font1)
+percent_lb2.grid(row=5, column=5, sticky=W)
 
-calc_btn = Button(frame, text='Рассчитать график\n платежей')
+calc_btn = Button(frame, text='Рассчитать график платежей')
 calc_btn.bind('<Button-1>', calculate_credit)
-calc_btn.grid(row=7, column=3)
+calc_btn.grid(row=6, column=1, columnspan=2, pady=30)
 
 window.mainloop()
