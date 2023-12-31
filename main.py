@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 import pandas as pd
+import os
 
 
 def calculate_credit(percent):
@@ -8,11 +9,40 @@ def calculate_credit(percent):
     init_payment = float(init_payment_tf.get())
     credit_sum = object_price - init_payment
     percent = float(percent_tf.get())
-    term = float(term_tf.get())
+    term = int(term_tf.get())
     month_pct = percent / 12 / 100
     total_pct = (1 + month_pct) ** (term * 12)
     payment = round(credit_sum * month_pct * total_pct / (total_pct - 1), 2)
     messagebox.showinfo('РЕЗУЛЬТАТ', f'Ежемесячный платёж составляет {payment} руб.')
+    month_pay = term * 12  # количество месяцев
+
+    owe_pay_lst = []
+    pct_pay_lst = []
+    credit_sum_lst = []
+    month_pay_lst = []
+    payment_lst = []
+
+    for i in range(1, month_pay + 1):
+        month_pay_lst.append(i)
+        payment_lst.append(payment)
+        pct_pay = round(month_pct * credit_sum, 2)  # платёж по процентам
+        pct_pay_lst.append(pct_pay)
+        owe_pay = round(payment - pct_pay, )  # платёж по основному долгу
+        owe_pay_lst.append(owe_pay)
+        credit_sum = round(credit_sum - owe_pay, 2)
+        if credit_sum < 0:
+            credit_sum = 0
+        credit_sum_lst.append(credit_sum)  # остаток долга
+
+    dict = {'месяц': month_pay_lst, 'сумма платежа': payment_lst, 'платёж по основному долгу': owe_pay_lst,
+            'платёж по процентам': pct_pay_lst, 'остаток долга': credit_sum_lst}
+
+    df = pd.DataFrame(dict)  # создание датафрейма из словаря
+
+    if not os.path.exists('C:/Credit calculator'):  # создаём папку, если её ещё не существует
+        os.makedirs('C:/Credit calculator')
+    df.to_excel('C:/Credit calculator/schedule.xlsx', sheet_name='List 1')  # запись файла с графиком платежей в excel
+    os.startfile('C:/Credit calculator/schedule.xlsx')  # открытие файла с платежами в excel
 
 
 window = Tk()
